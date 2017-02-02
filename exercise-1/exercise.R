@@ -3,6 +3,7 @@
 # Load the httr and jsonlite libraries for accessing data
 library("httr")
 library("jsonlite")
+library("dplyr")
 
 ## For these questions, look at the API documentation to identify the appropriate endpoint and information.
 ## Then send GET() request to fetch the data, then extract the answer to the question
@@ -15,15 +16,22 @@ years <- fromJSON(body)
 print(years)
 
 # What is the "country code" for the "Syrian Arab Republic"?
-response.country <- GET("http://data.unhcr.org/api/documents/documents.json")
+response.country <- GET("http://data.unhcr.org/api/countries/list.json")
 body_country <- content(response.country, "text")
-country_code <- fromJSON(body_country)
+code <- fromJSON(body_country)
+View(code)
+
+code %>% filter(name_en == "Syrian Arab Republic") %>% 
+  select(country_code)
 
 # How many persons of concern from Syria applied for residence in the USA in 2013?
 # Hint: you'll need to use a query parameter
 # Use the `str()` function to print the data of interest
 # See http://www.unhcr.org/en-us/who-we-help.html for details on these terms
-
+query.params <- list(poulation_type_code = "RF", year=2013, country_of_origin = "SYR", country_of_residence = "USA")
+response <- GET("http://data.unhcr.org/api/stats/persons_of_concern.json", query = query.params)
+body <- fromJSON(content(response, "text"))
+View(body)
 
 ## And this was only 2013...
 
